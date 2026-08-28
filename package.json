@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "prod": "node --env-file=./env/.env.production dist/src/server.js",
+    "dev": "node --env-file=./env/.env.development --watch src/server.js",
+    "lint": "eslint \"src/**/*.js\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.9.3",
+    "zod": "^4.4.3"
+  },
+  "engines": {
+    "node": ">=26 <27",
+    "npm": ">=11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6"
+  }
+}
