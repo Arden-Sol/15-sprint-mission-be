@@ -7,21 +7,34 @@ import { BadRequestException } from '../errors/bad-request-exception.js';
 export const productRouter = express.Router();
 
 productRouter.get('/', async (req, res) => {
-  const { offset = 1, limit = 10 } = req.query ?? {};
+  const {
+    offset = 0,
+    limit = 10,
+    sort = 'asc',
+    keyword = '',
+  } = req.query ?? {};
 
   try {
-    const totalCount = await Products.countDocuments();
-    // 정렬기능 키워드 기능 총 페이지 수를 넘어갔을 때 필터링
-    const products = await Products.find()
+    const filter = keyword
+      ? {
+          $or: [
+            { name: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const totalCount = await Products.countDocuments(filter);
+    const products = await Products.find(filter)
       .sort({
-        createdAt: 'desc',
+        updatedAt: sort,
       })
       .skip(Number(offset))
       .limit(Number(limit));
 
     res.status(200).json({
       list: products,
-      totalCount: totalCount,
+      totalCount,
     });
   } catch (error) {
     console.error(error);
