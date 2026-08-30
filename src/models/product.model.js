@@ -10,16 +10,8 @@ const productSchema = new mongoose.Schema(
   {
     timestamps: true,
     toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
 
 export const Products = mongoose.model('Products', productSchema);
-
-// product schema
-// id: string
-// name: string
-// description: string
-// price: number
-// tags: array(string)
-// createdAt: date
-// updatedAt: date
