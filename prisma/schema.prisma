@@ -6,3 +6,30 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Products {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Int
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Article {
+  id        String    @id @default(uuid())
+  title     String
+  content   String
+  createdAt DateTime
+  updatedAt DateTime
+  comments  Comment[]
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+}
