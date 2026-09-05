@@ -2,8 +2,8 @@ import { isDevelopment, isProduction } from '../config/config.js';
 
 export const cors = (req, res, next) => {
   const whiteList = isDevelopment
-    ? 'http://localhost:5173'
-    : 'https://sprint-fullstack-15-kimhakyeong.netlify.app/';
+    ? ['http://localhost:5173']
+    : ['https://sprint-fullstack-15-kimhakyeong.netlify.app'];
 
   const origin = req.get('Origin');
 
