@@ -4,7 +4,6 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
   PORT: z.coerce.number().min(1000).max(65535),
   MONGO_URI: z.string(),
-  ALLOWED_ORIGINS: z.url(),
 });
 
 const parseEnvironment = () => {
@@ -13,7 +12,6 @@ const parseEnvironment = () => {
       NODE_ENV: process.env.NODE_ENV,
       PORT: process.env.PORT,
       MONGO_URI: process.env.MONGO_URI,
-      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
     });
   } catch (error) {
     console.log(error);
