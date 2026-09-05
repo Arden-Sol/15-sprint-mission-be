@@ -1,9 +1,7 @@
 import { isDevelopment, isProduction } from '../config/config.js';
 
 export const cors = (req, res, next) => {
-  const whiteList = isDevelopment
-    ? ['http://localhost:5173']
-    : ['https://www.naver.com', 'https://www.google.com'];
+  const whiteList = process.env.ALLOWED_ORIGINS;
 
   const origin = req.get('Origin');
 
