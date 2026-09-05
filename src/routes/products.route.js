@@ -3,6 +3,7 @@ import { NotFoundException } from '../errors/not-found-exception.js';
 import { validateRegisterProduct } from '../middlewares/validateRegisterProduct.js';
 import { Products } from '../models/product.model.js';
 import { BadRequestException } from '../errors/bad-request-exception.js';
+import { validId } from '../middlewares/validId.js';
 
 export const productRouter = express.Router();
 
@@ -42,7 +43,7 @@ productRouter.get('/', async (req, res) => {
   }
 });
 
-productRouter.get('/:productId', async (req, res) => {
+productRouter.get('/:productId', validId, async (req, res) => {
   try {
     const product = await Products.findById(req.params.productId);
 
@@ -59,14 +60,14 @@ productRouter.get('/:productId', async (req, res) => {
   }
 });
 
-productRouter.post('/', async (req, res) => {
+productRouter.post('/', validateRegisterProduct, async (req, res) => {
   const { name, description, price, tags } = req.body ?? {};
 
   try {
     const newProduct = new Products({ name, description, price, tags });
     await newProduct.save();
 
-    res.status(200).json({
+    res.status(201).json({
       data: newProduct,
     });
   } catch (error) {
@@ -75,7 +76,7 @@ productRouter.post('/', async (req, res) => {
   }
 });
 
-productRouter.patch('/:productId', async (req, res) => {
+productRouter.patch('/:productId', validId, async (req, res) => {
   const { name, description, price, tags } = req.body ?? {};
 
   try {
@@ -85,7 +86,7 @@ productRouter.patch('/:productId', async (req, res) => {
       throw new NotFoundException('수정할 물건을 찾지 못했습니다.');
     }
 
-    if (!name || !description || !price || !tags) {
+    if (!name && !description && !price && !tags) {
       throw new BadRequestException('수정할 내용을 입력해주세요');
     }
 
@@ -113,7 +114,7 @@ productRouter.patch('/:productId', async (req, res) => {
   }
 });
 
-productRouter.delete('/:productId', async (req, res) => {
+productRouter.delete('/:productId', validId, async (req, res) => {
   try {
     const product = await Products.findById(req.params.productId);
 
