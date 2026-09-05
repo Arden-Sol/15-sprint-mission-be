@@ -6,6 +6,14 @@
   "author": "",
   "type": "module",
   "main": "src/server.js",
+  "imports": {
+    "#generated/*": "./generated/*",
+    "#config": "./src/config/config.js",
+    "#db/*": "./src/db/*",
+    "#errors": "./src/errors/index.js",
+    "#middlewares": "./src/middlewares/index.js",
+    "#repositories": "./src/repositories/index.js"
+  },
   "scripts": {
     "prod": "node src/server.js",
     "dev": "node --env-file=./env/.env.development --watch src/server.js",
@@ -14,6 +22,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "express": "^5.2.1",
     "mongoose": "^9.9.3",
     "zod": "^4.4.3"
@@ -25,6 +35,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.8.1",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "prisma": "^8.0.0-rc.13"
   }
 }
