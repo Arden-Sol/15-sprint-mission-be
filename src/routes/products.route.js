@@ -7,6 +7,8 @@ import { validId } from '../middlewares/validId.js';
 
 export const productRouter = express.Router();
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 productRouter.get('/', async (req, res) => {
   const {
     offset = 0,
@@ -19,13 +21,19 @@ productRouter.get('/', async (req, res) => {
     const filter = keyword
       ? {
           $or: [
-            { name: { $regex: keyword, $options: 'i' } },
-            { description: { $regex: keyword, $options: 'i' } },
+            { name: { $regex: escapeRegex(keyword), $options: 'i' } },
+            { description: { $regex: escapeRegex(keyword), $options: 'i' } },
           ],
         }
       : {};
 
     const totalCount = await Products.countDocuments(filter);
+    if (offset < 1 || !Number.isInteger(offset)) {
+      offset = 1;
+    }
+    if (limit < 1 || !Number.isInteger(limit)) {
+      limit = 10;
+    }
     const products = await Products.find(filter)
       .sort({
         updatedAt: sort,
