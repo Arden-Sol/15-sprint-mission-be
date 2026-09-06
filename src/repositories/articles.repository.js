@@ -39,7 +39,7 @@ function getArticleList(offset = 1, limit = 10, sort = 'desc', keyword = '') {
   return prisma.article.findMany({
     skip: Number(offset),
     take: Number(limit),
-    where: searchWhere(keyword),
+    where: searchWhere('title', 'content', keyword),
     orderBy: {
       title: sort,
     },
@@ -48,7 +48,7 @@ function getArticleList(offset = 1, limit = 10, sort = 'desc', keyword = '') {
 
 function countArticle(keyword) {
   return prisma.article.count({
-    where: searchWhere(keyword),
+    where: searchWhere('title', 'content', keyword),
   });
 }
 

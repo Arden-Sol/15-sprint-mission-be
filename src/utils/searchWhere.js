@@ -1,14 +1,14 @@
-export function searchWhere(keyword) {
+export function searchWhere(searchField1, searchField2, keyword) {
   return {
     OR: [
       {
-        title: {
+        [searchField1]: {
           contains: keyword,
           mode: 'insensitive',
         },
       },
       {
-        content: {
+        [searchField2]: {
           contains: keyword,
           mode: 'insensitive',
         },

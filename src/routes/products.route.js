@@ -1,139 +1,128 @@
 import express from 'express';
-import { NotFoundException } from '../errors/not-found-exception.js';
 import { validateRegisterProduct } from '../middlewares/validateRegisterProduct.js';
-import { Products } from '../models/product.model.js';
-import { BadRequestException } from '../errors/bad-request-exception.js';
-import { validId } from '../middlewares/validId.js';
+import { product } from '#repositories';
+import { HTTP_STATUS } from '#constants';
 
 export const productRouter = express.Router();
 
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-productRouter.get('/', async (req, res) => {
-  const {
-    offset = 0,
-    limit = 10,
-    sort = 'asc',
-    keyword = '',
-  } = req.query ?? {};
-
+productRouter.get('/:productId', async (req, res, next) => {
   try {
-    const filter = keyword
-      ? {
-          $or: [
-            { name: { $regex: escapeRegex(keyword), $options: 'i' } },
-            { description: { $regex: escapeRegex(keyword), $options: 'i' } },
-          ],
-        }
-      : {};
+    const productId = req.params.productId;
+    const result = await product.get(productId);
 
-    const totalCount = await Products.countDocuments(filter);
-    if (offset < 1 || !Number.isInteger(offset)) {
-      offset = 1;
+    if (!result) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: '상품을 찾을 수 없습니다.',
+      });
     }
-    if (limit < 1 || !Number.isInteger(limit)) {
-      limit = 10;
-    }
-    const products = await Products.find(filter)
-      .sort({
-        updatedAt: sort,
-      })
-      .skip(Number(offset))
-      .limit(Number(limit));
 
-    res.status(200).json({
-      list: products,
-      totalCount,
+    return res.status(HTTP_STATUS.OK).json({
+      data: result,
+      message: '상품을 찾았습니다.',
     });
   } catch (error) {
-    console.error(error);
-    throw error;
+    next(error);
   }
 });
 
-productRouter.get('/:productId', validId, async (req, res) => {
+productRouter.post('/', validateRegisterProduct, async (req, res, next) => {
   try {
-    const product = await Products.findById(req.params.productId);
+    const { name, description, price, tags } = req.body ?? {};
+    const data = { name, description, price, tags };
+    const result = await product.create(data);
 
-    if (!product) {
-      throw new NotFoundException('상품을 찾을 수 없습니다.');
-    }
-
-    res.status(200).json({
-      data: product,
+    res.status(HTTP_STATUS.CREATED).json({
+      data: result,
+      message: '상품이 등록되었습니다.',
     });
   } catch (error) {
-    console.error(error);
-    throw error;
+    next(error);
   }
 });
 
-productRouter.post('/', validateRegisterProduct, async (req, res) => {
-  const { name, description, price, tags } = req.body ?? {};
-
+productRouter.patch('/:productId', async (req, res, next) => {
   try {
-    const newProduct = new Products({ name, description, price, tags });
-    await newProduct.save();
+    const productId = req.params.productId;
+    const { name, description, price, tags } = req.body ?? {};
 
-    res.status(201).json({
-      data: newProduct,
-    });
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-});
+    const foundProduct = await product.get(productId);
 
-productRouter.patch('/:productId', validId, async (req, res) => {
-  const { name, description, price, tags } = req.body ?? {};
-
-  try {
-    const product = await Products.findById(req.params.productId);
-
-    if (!product) {
-      throw new NotFoundException('수정할 물건을 찾지 못했습니다.');
+    if (!foundProduct) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: '수정할 물건을 찾지 못했습니다.',
+      });
     }
 
     if (!name && !description && !price && !tags) {
-      throw new BadRequestException('수정할 내용을 입력해주세요');
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: '수정할 내용을 입력해주세요',
+      });
     }
 
-    if (name) {
-      product.name = name;
-    }
-    if (description) {
-      product.description = description;
-    }
-    if (price) {
-      product.price = price;
-    }
-    if (tags && tags.length !== 0) {
-      product.tags = [...tags];
-    }
+    const data = { name, description, price, tags };
+    const result = await product.update(productId, data);
 
-    await product.save();
-
-    res.status(200).json({
-      data: product,
+    res.status(HTTP_STATUS.OK).json({
+      data: result,
+      message: '상품 정보를 수정하였습니다.',
     });
   } catch (error) {
-    console.error(error);
-    throw error;
+    next(error);
   }
 });
 
-productRouter.delete('/:productId', validId, async (req, res) => {
+productRouter.delete('/:productId', async (req, res, next) => {
   try {
-    const product = await Products.findById(req.params.productId);
+    const productId = req.params.productId;
+    const foundProduct = await product.get(productId);
 
-    if (!product) {
-      throw new NotFoundException('삭제할 상품이 없습니다.');
+    if (!foundProduct) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: '삭제할 상품이 없습니다.',
+      });
     }
 
-    await product.deleteOne();
-    res.status(200).json({ product });
+    const result = await product.remove(productId);
+
+    res.status(HTTP_STATUS.OK).json({
+      data: result,
+      message: '상품을 삭제하였습니다.',
+    });
   } catch (error) {
-    console.error(error);
-    throw error;
+    next(error);
+  }
+});
+
+productRouter.get('/', async (req, res, next) => {
+  try {
+    const {
+      offset = 0,
+      limit = 10,
+      sort = 'asc',
+      keyword = '',
+    } = req.query ?? {};
+    let numOffset = Number(offset);
+    let numLimit = Number(limit);
+    const validSort = sort === 'asc' ? 'asc' : 'desc';
+
+    if (numOffset < 1 || !Number.isInteger(numOffset)) {
+      numOffset = 1;
+    }
+    if (numLimit < 1 || !Number.isInteger(numLimit) || numLimit > 35) {
+      numLimit = 10;
+    }
+
+    const [result, totalCount] = await Promise.all([
+      product.getList(numOffset, numLimit, validSort, keyword),
+      product.count(keyword),
+    ]);
+
+    return res.status(HTTP_STATUS.OK).json({
+      data: result,
+      totalCount,
+      message: '상품 목록을 불러왔습니다.',
+    });
+  } catch (error) {
+    next(error);
   }
 });

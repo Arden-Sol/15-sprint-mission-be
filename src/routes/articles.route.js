@@ -141,7 +141,7 @@ articleRouter.get('/', async (req, res, next) => {
     return res.status(HTTP_STATUS.OK).json({
       data: result,
       totalCount,
-      message: '목록을 불러왔습니다.',
+      message: 'article 목록을 불러왔습니다.',
     });
   } catch (error) {
     next(error);
