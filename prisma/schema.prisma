@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model Products {
+model Product {
   id          String   @id @default(uuid())
   name        String
   description String
@@ -21,15 +21,16 @@ model Article {
   id        String    @id @default(uuid())
   title     String
   content   String
-  createdAt DateTime
-  updatedAt DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   comments  Comment[]
 }
 
 model Comment {
   id        String   @id @default(uuid())
   content   String
-  createdAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
   articleId String
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }

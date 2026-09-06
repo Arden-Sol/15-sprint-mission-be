@@ -1,9 +1,16 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
   PORT: z.coerce.number().min(1000).max(65535),
-  DATABASE_URL: z.url(),
+  DATABASE_URL: z
+    .url()
+    .refine(
+      (url) => url.startsWith('postgresql:'),
+      'PostgreSQL 연결 URL이어야 합니다.',
+    ),
 });
 
 const parseEnvironment = () => {

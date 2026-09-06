@@ -17,6 +17,10 @@
   "scripts": {
     "prod": "node src/server.js",
     "dev": "node --env-file=./env/.env.development --watch src/server.js",
+    "prisma:generate": "dotenv -e ./env/.env.development -- npx prisma generate",
+    "prisma:migrate": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
+    "prisma:reset": "dotenv -e ./env/.env.development -- npx prisma migrate reset",
+    "seed": "node --env-file=./env/.env.development ./scripts/seed.js --allow-reset=panda_market",
     "lint": "eslint \"src/**/*.js\"",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -26,6 +30,7 @@
     "@prisma/client": "^7.10.0",
     "express": "^5.2.1",
     "mongoose": "^9.9.3",
+    "pg": "^8.23.0",
     "zod": "^4.4.3"
   },
   "engines": {
@@ -34,8 +39,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^10.8.1",
     "prettier": "^3.9.6",
-    "prisma": "^8.0.0-rc.13"
+    "prisma": "^7.10.0"
   }
 }
