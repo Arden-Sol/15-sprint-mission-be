@@ -24,7 +24,12 @@ const makeArticles = () => ({
   content: faker.lorem.paragraph({ min: 3, max: 8 }),
 });
 
-const makeComments = (articleId) => ({
+const makeProductComments = (productId) => ({
+  content: faker.lorem.sentence({ min: 1, max: 5 }),
+  productId,
+});
+
+const makeArticleComments = (articleId) => ({
   content: faker.lorem.sentence({ min: 1, max: 5 }),
   articleId,
 });
@@ -36,7 +41,9 @@ const seed = async (prisma) => {
   const productData = Array.from({ length: NUM_TO_CREATE_PRODUCT }, () =>
     makeProducts(),
   );
-  await prisma.product.createMany({ data: productData });
+  const products = await prisma.product.createManyAndReturn({
+    data: productData,
+  });
 
   const articleData = Array.from({ length: NUM_TO_CREATE_ARTICLE }, () =>
     makeArticles(),
@@ -46,15 +53,25 @@ const seed = async (prisma) => {
     data: articleData,
   });
 
-  const commentData = [];
-  for (const article of articles) {
+  const productCommentData = [];
+  for (const product of products) {
     const count = faker.number.int({ min: 1, max: 6 });
     for (let i = 0; i < count; i++) {
-      commentData.push(makeComments(article.id));
+      productCommentData.push(makeProductComments(product.id));
     }
   }
 
-  await prisma.comment.createMany({ data: commentData });
+  await prisma.productComment.createMany({ data: productCommentData });
+
+  const articleCommentData = [];
+  for (const article of articles) {
+    const count = faker.number.int({ min: 1, max: 6 });
+    for (let i = 0; i < count; i++) {
+      articleCommentData.push(makeArticleComments(article.id));
+    }
+  }
+
+  await prisma.articleComment.createMany({ data: articleCommentData });
 };
 
 const main = async (prisma) => {
