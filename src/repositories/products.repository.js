@@ -32,14 +32,12 @@ function deleteProduct(productId) {
   });
 }
 
-function getProductList(offset = 1, limit, sort, keyword) {
+function getProductList(page = 1, limit, sort = 'desc', keyword) {
   return prisma.product.findMany({
-    skip: Number(offset),
+    skip: (Number(page) - 1) * limit,
     take: Number(limit),
     where: searchWhere('name', 'description', keyword),
-    orderBy: {
-      name: sort,
-    },
+    orderBy: [{ createdAt: sort }, { id: 'asc' }],
   });
 }
 

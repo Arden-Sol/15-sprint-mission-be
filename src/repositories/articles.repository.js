@@ -35,14 +35,12 @@ function deleteArticle(articleId) {
   });
 }
 
-function getArticleList(offset = 1, limit = 10, sort = 'desc', keyword = '') {
+function getArticleList(page = 1, limit = 10, sort = 'desc', keyword = '') {
   return prisma.article.findMany({
-    skip: Number(offset),
+    skip: Number(page),
     take: Number(limit),
     where: searchWhere('title', 'content', keyword),
-    orderBy: {
-      title: sort,
-    },
+    orderBy: [{ createdAt: sort }, { id: 'asc' }],
   });
 }
 

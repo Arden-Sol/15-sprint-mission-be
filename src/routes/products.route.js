@@ -96,24 +96,24 @@ productRouter.delete('/:productId', async (req, res, next) => {
 productRouter.get('/', async (req, res, next) => {
   try {
     const {
-      offset = 0,
+      page = 1,
       limit = 10,
-      sort = 'asc',
+      sort = 'desc',
       keyword = '',
     } = req.query ?? {};
-    let numOffset = Number(offset);
+    let numPage = Number(page);
     let numLimit = Number(limit);
     const validSort = sort === 'asc' ? 'asc' : 'desc';
 
-    if (numOffset < 1 || !Number.isInteger(numOffset)) {
-      numOffset = 1;
+    if (numPage < 1 || !Number.isInteger(numPage)) {
+      numPage = 1;
     }
     if (numLimit < 1 || !Number.isInteger(numLimit) || numLimit > 35) {
       numLimit = 10;
     }
 
     const [result, totalCount] = await Promise.all([
-      product.getList(numOffset, numLimit, validSort, keyword),
+      product.getList(numPage, numLimit, validSort, keyword),
       product.count(keyword),
     ]);
 
