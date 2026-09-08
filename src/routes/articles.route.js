@@ -11,7 +11,7 @@ articleRouter.get('/:articleId', async (req, res, next) => {
 
     if (!result) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
-        message: 'article을 찾을 수 없습니다.',
+        message: '게시물을 찾을 수 없습니다.',
       });
     }
 
@@ -54,7 +54,7 @@ articleRouter.patch('/:articleId', async (req, res, next) => {
 
     if (!foundArticle) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
-        message: 'article을 찾을 수 없습니다.',
+        message: '게시물을 찾을 수 없습니다.',
       });
     }
 
@@ -93,7 +93,7 @@ articleRouter.delete('/:articleId', async (req, res, next) => {
 
     if (!foundArticle) {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
-        message: 'article을 찾을 수 없습니다.',
+        message: '게시물을 찾을 수 없습니다.',
       });
     }
 
@@ -141,7 +141,7 @@ articleRouter.get('/', async (req, res, next) => {
     return res.status(HTTP_STATUS.OK).json({
       data: result,
       totalCount,
-      message: 'article 목록을 불러왔습니다.',
+      message: '게시물 목록을 불러왔습니다.',
     });
   } catch (error) {
     next(error);
